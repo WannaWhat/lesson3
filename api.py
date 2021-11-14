@@ -33,6 +33,11 @@ def params(name, age):
     return response
 
 
+@app.route('/get_by_name/<name>', methods=['GET'])
+def get_by_name(name):
+    return name
+
+
 @app.route('/put/<name>', methods=['PUT'])
 def put(name):
     response = make_response('', 204)
@@ -49,6 +54,37 @@ def delete(name):
         response = make_response('Unknow name', 404)
     return response
 
+
+@app.route('/post', methods=['POST'])
+def post():
+    inputs = request.get_json()
+    needs_inputs = ['x', 'y']
+    answer = 1
+    for _n in needs_inputs:
+        if _n in inputs:
+            if type(inputs[_n]) == str and inputs[_n].isdigit():
+                inputs[_n] = int(inputs[_n])
+            elif type(inputs[_n]) != int:
+                response = make_response(jsonify(
+                    errors=True,
+                    exception='Inputs must be in integer',
+                    answer='',
+                ), 400)
+                return response
+        else:
+            response = make_response(jsonify(
+                errors=True,
+                exception=f'Bad args, need: {needs_inputs}',
+                answer='',
+            ), 400)
+            return response
+        answer *= inputs[_n]
+    response = make_response(jsonify(
+        errors=False,
+        exception='',
+        answer=answer,
+    ), 200)
+    return response
 
 
 if __name__ == '__main__':
